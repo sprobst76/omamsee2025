@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff6b6b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="OM am See">
+    <meta name="description" content="OM am See Festival 2025 - Deine persönliche Festival App">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+    <title>OM am See Festival</title>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🕉️ OM am See</h1>
+            <p>11. - 13. Juli 2025</p>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="schedule">Programm</button>
+            <button class="tab-btn" data-tab="favorites">Favoriten</button>
+            <button class="tab-btn" data-tab="visited">Besucht</button>
+            <button class="tab-btn" data-tab="info">Info</button>
+        </div>
+
+        <div class="content">
+            <!-- Schedule Tab -->
+            <div id="schedule-tab" class="tab-content active">
+                <!-- Next Event Widget -->
+                <div id="next-event-widget" class="next-event-widget" style="display: none;">
+                    <div class="next-event-time" id="next-event-time"></div>
+                    <div class="next-event-title" id="next-event-title"></div>
+                    <div class="next-event-location" id="next-event-location"></div>
+                </div>
+
+                <input type="text" class="search-box" placeholder="🔍 Events suchen..." id="search-input">
+                
+                <div class="filter-tags">
+                    <span class="filter-tag active" data-filter="all">Alle</span>
+                    <span class="filter-tag" data-filter="yoga">Yoga</span>
+                    <span class="filter-tag" data-filter="meditation">Meditation</span>
+                    <span class="filter-tag" data-filter="workshop">Workshop</span>
+                    <span class="filter-tag" data-filter="konzert">Konzert</span>
+                </div>
+
+                <div class="day-selector">
+                    <button class="day-btn active" data-day="2025-07-11">Fr 11.7</button>
+                    <button class="day-btn" data-day="2025-07-12">Sa 12.7</button>
+                    <button class="day-btn" data-day="2025-07-13">So 13.7</button>
+                </div>
+
+                <div class="weather-toggle">
+                    <button class="weather-btn" id="weather-toggle">☔ Regenplan anzeigen</button>
+                </div>
+
+                <!-- Toggle Controls -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="weather-btn" id="hide-past-toggle">⏰ Vergangene ausblenden</button>
+                    <button class="weather-btn" id="dark-mode-toggle">🌙 Dark Mode</button>
+                </div>
+
+                <div id="events-container"></div>
+            </div>
+
+            <!-- Favorites Tab -->
+            <div id="favorites-tab" class="tab-content" style="display: none;">
+                <h3>Meine Favoriten</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <select id="reminder-time-select" class="reminder-time-select">
+                        <option value="5">5 Min vorher</option>
+                        <option value="10">10 Min vorher</option>
+                        <option value="15" selected>15 Min vorher</option>
+                        <option value="30">30 Min vorher</option>
+                    </select>
+                    <small style="color: #6c757d; align-self: center;">Standard-Erinnerungszeit</small>
+                </div>
+                <div id="favorites-container">
+                    <div class="favorites-empty">
+                        <p>💜 Noch keine Favoriten hinzugefügt</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Markiere Events mit ⭐ um sie hier zu sehen</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visited Tab -->
+            <div id="visited-tab" class="tab-content" style="display: none;">
+                <h3>Besuchte Events</h3>
+                
+                <!-- Visited Stats -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <span class="stat-card-number" id="visited-total">0</span>
+                        <div class="stat-card-label">Besucht</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-number" id="visited-rated">0</span>
+                        <div class="stat-card-label">Bewertet</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-number" id="avg-rating">-</span>
+                        <div class="stat-card-label">⌀ Rating</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-number" id="favorite-category">-</span>
+                        <div class="stat-card-label">Lieblings-Art</div>
+                    </div>
+                </div>
+
+                <div id="visited-container">
+                    <div class="favorites-empty">
+                        <p>📝 Noch keine Events besucht</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Markiere Events als "besucht" um sie hier zu sehen</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Tab -->
+            <div id="info-tab" class="tab-content" style="display: none;">
+                <div class="stats">
+                    <h3>Festival Übersicht</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-events">0</span>
+                            <span class="stat-label">Events</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-favorites">0</span>
+                            <span class="stat-label">Favoriten</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-visited">0</span>
+                            <span class="stat-label">Besucht</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-reminders">0</span>
+                            <span class="stat-label">Erinnerungen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Einstellungen</h3>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <span>Dark Mode</span>
+                        <div class="toggle-switch" id="dark-mode-setting" onclick="toggleDarkMode()"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>Vergangene Events ausblenden</span>
+                        <div class="toggle-switch" id="hide-past-setting" onclick="toggleHidePast()"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>Standard-Erinnerungszeit</span>
+                        <select class="reminder-time-select" id="default-reminder-time" onchange="updateDefaultReminderTime()">
+                            <option value="5">5 Minuten</option>
+                            <option value="10">10 Minuten</option>
+                            <option value="15" selected>15 Minuten</option>
+                            <option value="30">30 Minuten</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3>Locations</h3>
+                <div class="location-info">
+                    <ul style="list-style: none; font-size: 14px; line-height: 1.6;">
+                        <li>🎭 <strong>OM Stage</strong> - Hauptbühne</li>
+                        <li>🧘‍♀️ <strong>Shanti Area</strong> - Ruhebereich</li>
+                        <li>💃 <strong>Inner Peace Floor</strong> - Meditation</li>
+                        <li>⚖️ <strong>Balance Floor</strong> - Workshops</li>
+                        <li>🌊 <strong>Lake Side Floor</strong> - Am See</li>
+                        <li>🏔️ <strong>Mountain View Floor</strong> - Bergblick</li>
+                        <li>🎵 <strong>Harmony Garden</strong> - Musik</li>
+                        <li>🏄‍♀️ <strong>Peaceful Waves</strong> - SUP Yoga</li>
+                        <li>👶 <strong>Playground Kids</strong> - Kinder</li>
+                    </ul>
+                </div>
+
+                <h3>App Features</h3>
+                <div class="app-info">
+                    <p>📱 <strong>Als App installieren:</strong> Nutze den "Zum Homescreen hinzufügen" Button in deinem Browser</p>
+                    <p>🔔 <strong>Benachrichtigungen:</strong> Erhalte Erinnerungen vor deinen Events</p>
+                    <p>☔ <strong>Regenplan:</strong> Alternative Indoor-Events bei schlechtem Wetter</p>
+                    <p>🔄 <strong>Offline:</strong> Funktioniert auch ohne Internet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <!-- Rating Modal -->
+    <div id="rating-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-event-title">Event bewerten</h3>
+            <div class="rating-stars" id="rating-stars">
+                <span class="rating-star" data-rating="1">⭐</span>
+                <span class="rating-star" data-rating="2">⭐</span>
+                <span class="rating-star" data-rating="3">⭐</span>
+                <span class="rating-star" data-rating="4">⭐</span>
+                <span class="rating-star" data-rating="5">⭐</span>
+            </div>
+            <textarea class="notes-textarea" id="event-notes" placeholder="Persönliche Notizen zum Event (optional)..."></textarea>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <button class="btn btn-favorite" onclick="saveEventRating()">Speichern</button>
+                <button class="btn" onclick="closeRatingModal()" style="background: #6c757d; color: white;">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+
+    <script src="js/events.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
