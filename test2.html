@@ -8,11 +8,496 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="OM am See">
     <meta name="description" content="OM am See Festival 2025 - Deine persönliche Festival App">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="styles.css">
     <title>OM am See Festival</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* App Container */
+        .app-container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+            background: white;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Day Selector */
+        .day-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .day-btn {
+            padding: 10px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            font-weight: 500;
+            min-width: fit-content;
+        }
+
+        .day-btn.active {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        /* Weather Toggle */
+        .weather-toggle {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .weather-btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .weather-btn.rain {
+            background: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+        }
+
+        /* Search Box */
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        /* Filter Tags */
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tag {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .filter-tag.active {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        /* Event Cards */
+        .event-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .event-header {
+            padding: 15px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .event-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+
+        .event-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .event-location {
+            font-size: 12px;
+            color: #6c757d;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .event-actions {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .btn-favorite {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-favorite.active {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-remind {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .btn-remind.active {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Stats */
+        .stats {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stats h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Empty States */
+        .favorites-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        /* Settings */
+        .settings-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #ff6b6b;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            left: 27px;
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+        }
+
+        .dark-mode .app-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+
+        .dark-mode .tab-nav {
+            background: #34495e;
+            border-bottom-color: #4a5f7a;
+        }
+
+        .dark-mode .tab-btn {
+            color: #bdc3c7;
+        }
+
+        .dark-mode .tab-btn.active {
+            background: #2c3e50;
+            color: #ff6b6b;
+        }
+
+        .dark-mode .search-box,
+        .dark-mode .day-btn,
+        .dark-mode .weather-btn,
+        .dark-mode .event-card,
+        .dark-mode .settings-group {
+            background: #34495e;
+            color: #ecf0f1;
+            border-color: #4a5f7a;
+        }
+
+        .dark-mode .event-actions {
+            background: #2c3e50;
+        }
+
+        .dark-mode .event-location {
+            background: #4a5f7a;
+            color: #bdc3c7;
+        }
+
+        .dark-mode .filter-tag {
+            background: #34495e;
+            color: #bdc3c7;
+            border-color: #4a5f7a;
+        }
+
+        .dark-mode .filter-tag.active {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        .location-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .app-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .app-info p {
+            margin-bottom: 10px;
+        }
+
+        .dark-mode .location-info,
+        .dark-mode .app-info {
+            background: #34495e;
+            color: #ecf0f1;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -31,13 +516,6 @@
         <div class="content">
             <!-- Schedule Tab -->
             <div id="schedule-tab" class="tab-content active">
-                <!-- Next Event Widget -->
-                <div id="next-event-widget" class="next-event-widget" style="display: none;">
-                    <div class="next-event-time" id="next-event-time"></div>
-                    <div class="next-event-title" id="next-event-title"></div>
-                    <div class="next-event-location" id="next-event-location"></div>
-                </div>
-
                 <input type="text" class="search-box" placeholder="🔍 Events suchen..." id="search-input">
                 
                 <div class="filter-tags">
@@ -58,27 +536,19 @@
                     <button class="weather-btn" id="weather-toggle">☔ Regenplan anzeigen</button>
                 </div>
 
-                <!-- Toggle Controls -->
                 <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                     <button class="weather-btn" id="hide-past-toggle">⏰ Vergangene ausblenden</button>
                     <button class="weather-btn" id="dark-mode-toggle">🌙 Dark Mode</button>
                 </div>
 
-                <div id="events-container"></div>
+                <div id="events-container">
+                    <p style="text-align: center; color: #6c757d; margin-top: 40px;">Events werden geladen...</p>
+                </div>
             </div>
 
             <!-- Favorites Tab -->
-            <div id="favorites-tab" class="tab-content" style="display: none;">
+            <div id="favorites-tab" class="tab-content">
                 <h3>Meine Favoriten</h3>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <select id="reminder-time-select" class="reminder-time-select">
-                        <option value="5">5 Min vorher</option>
-                        <option value="10">10 Min vorher</option>
-                        <option value="15" selected>15 Min vorher</option>
-                        <option value="30">30 Min vorher</option>
-                    </select>
-                    <small style="color: #6c757d; align-self: center;">Standard-Erinnerungszeit</small>
-                </div>
                 <div id="favorites-container">
                     <div class="favorites-empty">
                         <p>💜 Noch keine Favoriten hinzugefügt</p>
@@ -88,29 +558,8 @@
             </div>
 
             <!-- Visited Tab -->
-            <div id="visited-tab" class="tab-content" style="display: none;">
+            <div id="visited-tab" class="tab-content">
                 <h3>Besuchte Events</h3>
-                
-                <!-- Visited Stats -->
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <span class="stat-card-number" id="visited-total">0</span>
-                        <div class="stat-card-label">Besucht</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-card-number" id="visited-rated">0</span>
-                        <div class="stat-card-label">Bewertet</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-card-number" id="avg-rating">-</span>
-                        <div class="stat-card-label">⌀ Rating</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-card-number" id="favorite-category">-</span>
-                        <div class="stat-card-label">Lieblings-Art</div>
-                    </div>
-                </div>
-
                 <div id="visited-container">
                     <div class="favorites-empty">
                         <p>📝 Noch keine Events besucht</p>
@@ -120,7 +569,7 @@
             </div>
 
             <!-- Info Tab -->
-            <div id="info-tab" class="tab-content" style="display: none;">
+            <div id="info-tab" class="tab-content">
                 <div class="stats">
                     <h3>Festival Übersicht</h3>
                     <div class="stats-grid">
@@ -153,15 +602,6 @@
                         <span>Vergangene Events ausblenden</span>
                         <div class="toggle-switch" id="hide-past-setting" onclick="toggleHidePast()"></div>
                     </div>
-                    <div class="setting-item">
-                        <span>Standard-Erinnerungszeit</span>
-                        <select class="reminder-time-select" id="default-reminder-time" onchange="updateDefaultReminderTime()">
-                            <option value="5">5 Minuten</option>
-                            <option value="10">10 Minuten</option>
-                            <option value="15" selected>15 Minuten</option>
-                            <option value="30">30 Minuten</option>
-                        </select>
-                    </div>
                 </div>
 
                 <h3>Locations</h3>
@@ -192,41 +632,372 @@
 
     <div class="notification" id="notification"></div>
 
-    <!-- Rating Modal -->
-    <div id="rating-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-event-title">Event bewerten</h3>
-            <div class="rating-stars" id="rating-stars">
-                <span class="rating-star" data-rating="1">⭐</span>
-                <span class="rating-star" data-rating="2">⭐</span>
-                <span class="rating-star" data-rating="3">⭐</span>
-                <span class="rating-star" data-rating="4">⭐</span>
-                <span class="rating-star" data-rating="5">⭐</span>
-            </div>
-            <textarea class="notes-textarea" id="event-notes" placeholder="Persönliche Notizen zum Event (optional)..."></textarea>
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-                <button class="btn btn-favorite" onclick="saveEventRating()">Speichern</button>
-                <button class="btn" onclick="closeRatingModal()" style="background: #6c757d; color: white;">Abbrechen</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Service Worker Registration -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+        // Event data embedded directly to avoid module loading issues on GitHub Pages
+        const events = [
+            // Friday July 11, 2025
+            { id: 1, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Dr. Ronald Steiner – Ashtanga Yoga', location: 'OM Stage', category: 'yoga' },
+            { id: 2, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Sandra Daya Devi – Sensual Yoga Flow', location: 'Shanti Area', category: 'yoga' },
+            { id: 3, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Dennis Wittmann – Grounding Peace', location: 'Balance Floor', category: 'yoga' },
+            { id: 4, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Janavallabha Das – Schamanische Heilreise I', location: 'Lake Side Floor', category: 'workshop' },
+            { id: 5, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Ute Liebhard – Lachyoga', location: 'Mountain View Floor', category: 'yoga' },
+            { id: 6, date: '2025-07-11', startTime: '11:00', endTime: '12:00', title: 'SUP Yoga – Yoga auf dem SUP-Bord', location: 'Peaceful Waves', category: 'yoga' },
+            { id: 7, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Kathrin Thierfeld – Yoga to the Beat', location: 'Free Your Emotion Floor', category: 'yoga' },
+            { id: 8, date: '2025-07-11', startTime: '11:00', endTime: '12:00', title: 'Kinderyoga mit Michael', location: 'Playground Kids', category: 'yoga' },
+            { id: 9, date: '2025-07-11', startTime: '13:00', endTime: '14:00', title: 'We say Hello – Opening mit Engelbert', location: 'OM Stage', category: 'other' },
+            { id: 10, date: '2025-07-11', startTime: '14:30', endTime: '16:00', title: 'Bryan Kest – Power Yoga', location: 'OM Stage', category: 'yoga' },
+            { id: 11, date: '2025-07-11', startTime: '14:00', endTime: '15:30', title: 'Helga Baugartner – Yin Yoga', location: 'Shanti Area', category: 'yoga' },
+            { id: 12, date: '2025-07-11', startTime: '14:30', endTime: '16:00', title: 'Shakti – Männer Circle', location: 'Inner Peace Floor', category: 'workshop' },
+            { id: 13, date: '2025-07-11', startTime: '14:30', endTime: '16:00', title: 'Nicole Schäfer – Women Circle', location: 'Balance Floor', category: 'workshop' },
+            { id: 14, date: '2025-07-11', startTime: '15:00', endTime: '16:30', title: 'Anja Bölitz – Yoga meets Qi Gong', location: 'Lake Side Floor', category: 'yoga' },
+            { id: 15, date: '2025-07-11', startTime: '14:00', endTime: '15:00', title: 'Angelina Encanto – Ayurveda Workshop', location: 'Mountain View Floor', category: 'workshop' },
+            { id: 16, date: '2025-07-11', startTime: '15:00', endTime: '16:00', title: 'Vicky – Edelstein-Yoga', location: 'Harmony Garden', category: 'yoga' },
+            { id: 17, date: '2025-07-11', startTime: '15:00', endTime: '16:00', title: 'SUP Yoga – Yoga auf dem SUP-Bord', location: 'Peaceful Waves', category: 'yoga' },
+            { id: 18, date: '2025-07-11', startTime: '15:00', endTime: '16:00', title: 'Wir bauen ein Naturmandala mit Michael', location: 'Playground Kids', category: 'other' },
+            { id: 19, date: '2025-07-11', startTime: '16:30', endTime: '18:00', title: 'Patrick Broome – Yoga für alle', location: 'OM Stage', category: 'yoga' },
+            { id: 20, date: '2025-07-11', startTime: '16:00', endTime: '17:00', title: 'Sven Oliver Engel – Nirmala Yoga Meditation', location: 'Inner Peace Floor', category: 'meditation' },
+            { id: 21, date: '2025-07-11', startTime: '16:00', endTime: '17:00', title: 'Michael Grumbach – Die 3 Schlüssel für glückliche Beziehungen', location: 'Balance Floor', category: 'workshop' },
+            { id: 22, date: '2025-07-11', startTime: '16:00', endTime: '17:00', title: 'Pava Fuma – Räucherwerk Workshop', location: 'Harmony Garden', category: 'workshop' },
+            { id: 23, date: '2025-07-11', startTime: '17:00', endTime: '18:00', title: 'SUP Yoga – Yoga auf dem SUP-Bord', location: 'Peaceful Waves', category: 'yoga' },
+            { id: 24, date: '2025-07-11', startTime: '19:00', endTime: '20:30', title: 'Mantra Tribe Konzert', location: 'OM Stage', category: 'konzert' },
+            { id: 25, date: '2025-07-11', startTime: '21:00', endTime: '22:15', title: 'AMISTAT Konzert', location: 'OM Stage', category: 'konzert' },
+            { id: 26, date: '2025-07-11', startTime: '22:15', endTime: '00:00', title: 'Ecstatic Dance – Engelbert Mystical Mystery – Feuershow – Saphira', location: 'OM Stage', category: 'other' },
+
+            // Saturday July 12, 2025 - Auswahl der wichtigsten Events
+            { id: 27, date: '2025-07-12', startTime: '07:00', endTime: '08:00', title: 'Niki Stephanus & Kathryn Wieckhorst – Sunrisemeditation', location: 'OM Stage', category: 'meditation' },
+            { id: 28, date: '2025-07-12', startTime: '08:30', endTime: '10:00', title: 'Shakti – Yoga Unlimited', location: 'OM Stage', category: 'yoga' },
+            { id: 29, date: '2025-07-12', startTime: '08:30', endTime: '10:00', title: 'Dr. Ronald Steiner – Ashtanga Yoga', location: 'Shanti Area', category: 'yoga' },
+            { id: 30, date: '2025-07-12', startTime: '10:30', endTime: '12:00', title: 'Bryan Kest – Power Yoga', location: 'OM Stage', category: 'yoga' },
+            { id: 31, date: '2025-07-12', startTime: '13:00', endTime: '14:30', title: 'Marcel Clementl – Good Vibes Yoga', location: 'Shanti Area', category: 'yoga' },
+            { id: 32, date: '2025-07-12', startTime: '14:45', endTime: '16:15', title: 'The Sat Nam Sessions – Mantra Meditation', location: 'OM Stage', category: 'meditation' },
+            { id: 33, date: '2025-07-12', startTime: '16:30', endTime: '18:00', title: 'Helga Baumgartner – Yin Yoga', location: 'OM Stage', category: 'yoga' },
+            { id: 34, date: '2025-07-12', startTime: '18:35', endTime: '20:30', title: 'Snatam Kaur und Band', location: 'Festspielhaus Bühne', category: 'konzert' },
+            { id: 35, date: '2025-07-12', startTime: '21:00', endTime: '23:00', title: 'Sam Garrett und Band', location: 'Open Air Bühne', category: 'konzert' },
+
+            // Sunday July 13, 2025 - Auswahl der wichtigsten Events
+            { id: 36, date: '2025-07-13', startTime: '07:00', endTime: '08:00', title: 'Sunrisemeditation (Niki Stephanus & Kathryn Wieckhorst)', location: 'OM Stage', category: 'meditation' },
+            { id: 37, date: '2025-07-13', startTime: '08:30', endTime: '10:00', title: 'Morgenroutine - Marcel Clementl', location: 'OM Stage', category: 'yoga' },
+            { id: 38, date: '2025-07-13', startTime: '10:30', endTime: '12:00', title: 'Wisdom, Beats & Poses - Stephanie & Armin Schönberger', location: 'OM Stage', category: 'yoga' },
+            { id: 39, date: '2025-07-13', startTime: '12:30', endTime: '14:00', title: 'Power Yoga - Bryan Kest', location: 'OM Stage', category: 'yoga' },
+            { id: 40, date: '2025-07-13', startTime: '14:30', endTime: '16:00', title: 'Art of Shavasana - Shaktij', location: 'OM Stage', category: 'yoga' },
+            { id: 41, date: '2025-07-13', startTime: '16:15', endTime: '17:00', title: 'We say goodbye - Closing mit live Musik', location: 'OM Stage', category: 'other' }
+        ];
+
+        // Rain plan events
+        const rainEvents = [
+            { id: 201, date: '2025-07-11', startTime: '11:00', endTime: '12:30', title: 'Ashtanga Yoga – Dr. Ronald Steiner (Indoor)', location: 'Shanti Area', category: 'yoga', isRain: true },
+            { id: 202, date: '2025-07-11', startTime: '14:30', endTime: '16:00', title: 'Power Yoga – Bryan Kest (Indoor)', location: 'Mountain View Floor', category: 'yoga', isRain: true },
+            { id: 203, date: '2025-07-12', startTime: '08:30', endTime: '10:00', title: 'Morgenroutine – Marcel Clementl (Indoor)', location: 'Shanti Area', category: 'yoga', isRain: true },
+            { id: 204, date: '2025-07-13', startTime: '12:30', endTime: '14:00', title: 'Power Yoga – Bryan Kest (Indoor)', location: 'OM Stage', category: 'yoga', isRain: true }
+        ];
+
+        // App state
+        let currentDay = '2025-07-11';
+        let currentTab = 'schedule';
+        let showRainPlan = false;
+        let favorites = JSON.parse(localStorage.getItem('omamsee_favorites') || '[]');
+        let reminders = JSON.parse(localStorage.getItem('omamsee_reminders') || '[]');
+        let visited = JSON.parse(localStorage.getItem('omamsee_visited') || '[]');
+        let settings = JSON.parse(localStorage.getItem('omamsee_settings') || '{"darkMode": false, "hidePast": false}');
+        let searchTerm = '';
+        let activeFilter = 'all';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            applySettings();
+            renderEvents();
+            updateStats();
+        });
+
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // Day selection
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentDay = this.dataset.day;
+                    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderEvents();
+                });
+            });
+
+            // Weather toggle
+            document.getElementById('weather-toggle').addEventListener('click', function() {
+                showRainPlan = !showRainPlan;
+                this.textContent = showRainPlan ? '☀️ Normalplan anzeigen' : '☔ Regenplan anzeigen';
+                this.classList.toggle('rain', showRainPlan);
+                renderEvents();
+            });
+
+            // Hide past toggle
+            document.getElementById('hide-past-toggle').addEventListener('click', function() {
+                settings.hidePast = !settings.hidePast;
+                this.textContent = settings.hidePast ? '⏰ Vergangene anzeigen' : '⏰ Vergangene ausblenden';
+                this.classList.toggle('rain', settings.hidePast);
+                saveSettings();
+                renderEvents();
+            });
+
+            // Dark mode toggle
+            document.getElementById('dark-mode-toggle').addEventListener('click', function() {
+                toggleDarkMode();
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', function() {
+                searchTerm = this.value.toLowerCase();
+                renderEvents();
+            });
+
+            // Filter tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    activeFilter = this.dataset.filter;
+                    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderEvents();
+                });
             });
         }
-    </script>
 
-    <script src="js/events.js"></script>
-    <script src="js/app.js"></script>
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const tabElement = document.getElementById(tab + '-tab');
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+
+            // Render content based on tab
+            switch(tab) {
+                case 'favorites':
+                    renderFavorites();
+                    break;
+                case 'visited':
+                    renderVisited();
+                    break;
+                case 'info':
+                    updateStats();
+                    break;
+            }
+        }
+
+        function renderEvents() {
+            const container = document.getElementById('events-container');
+            const eventsToShow = showRainPlan ? rainEvents : events;
+            
+            let filteredEvents = eventsToShow.filter(event => {
+                // Filter by day
+                if (event.date !== currentDay) return false;
+                
+                // Filter by search term
+                if (searchTerm && !event.title.toLowerCase().includes(searchTerm) && 
+                    !event.location.toLowerCase().includes(searchTerm)) return false;
+                
+                // Filter by category
+                if (activeFilter !== 'all' && event.category !== activeFilter) return false;
+                
+                return true;
+            });
+
+            // Sort by start time
+            filteredEvents.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+            container.innerHTML = filteredEvents.length > 0 
+                ? filteredEvents.map(event => createEventCard(event)).join('')
+                : '<p style="text-align: center; color: #6c757d; margin-top: 40px;">Keine Events gefunden</p>';
+        }
+
+        function createEventCard(event) {
+            const isFavorite = favorites.includes(event.id);
+            const hasReminder = reminders.includes(event.id);
+            
+            return `
+                <div class="event-card">
+                    <div class="event-header">
+                        <div class="event-time">${event.startTime} - ${event.endTime}</div>
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-location">${event.location}</div>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn btn-favorite ${isFavorite ? 'active' : ''}" 
+                                onclick="toggleFavorite(${event.id})">
+                            ⭐ ${isFavorite ? 'Favorit' : 'Favorisieren'}
+                        </button>
+                        <button class="btn btn-remind ${hasReminder ? 'active' : ''}" 
+                                onclick="toggleReminder(${event.id})">
+                            🔔 ${hasReminder ? 'Aktiv' : 'Erinnern'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleFavorite(eventId) {
+            if (favorites.includes(eventId)) {
+                favorites = favorites.filter(id => id !== eventId);
+                showNotification('Aus Favoriten entfernt');
+            } else {
+                favorites.push(eventId);
+                showNotification('Zu Favoriten hinzugefügt');
+            }
+            
+            localStorage.setItem('omamsee_favorites', JSON.stringify(favorites));
+            renderCurrentView();
+            updateStats();
+        }
+
+        function toggleReminder(eventId) {
+            if (reminders.includes(eventId)) {
+                reminders = reminders.filter(id => id !== eventId);
+                showNotification('Erinnerung entfernt');
+            } else {
+                reminders.push(eventId);
+                showNotification('Erinnerung gesetzt');
+            }
+            
+            localStorage.setItem('omamsee_reminders', JSON.stringify(reminders));
+            renderCurrentView();
+            updateStats();
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favorites-container');
+            const favoriteEvents = [...events, ...rainEvents].filter(event => favorites.includes(event.id));
+
+            if (favoriteEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="favorites-empty">
+                        <p>💜 Noch keine Favoriten hinzugefügt</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Markiere Events mit ⭐ um sie hier zu sehen</p>
+                    </div>
+                `;
+                return;
+            }
+
+            favoriteEvents.sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            container.innerHTML = favoriteEvents.map(event => createEventCard(event)).join('');
+        }
+
+        function renderVisited() {
+            const container = document.getElementById('visited-container');
+            const visitedEvents = [...events, ...rainEvents].filter(event => visited.includes(event.id));
+
+            if (visitedEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="favorites-empty">
+                        <p>📝 Noch keine Events besucht</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Markiere Events als "besucht" um sie hier zu sehen</p>
+                    </div>
+                `;
+                return;
+            }
+
+            visitedEvents.sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            container.innerHTML = visitedEvents.map(event => createEventCard(event)).join('');
+        }
+
+        function renderCurrentView() {
+            switch(currentTab) {
+                case 'schedule':
+                    renderEvents();
+                    break;
+                case 'favorites':
+                    renderFavorites();
+                    break;
+                case 'visited':
+                    renderVisited();
+                    break;
+            }
+        }
+
+        function updateStats() {
+            const totalEventsEl = document.getElementById('total-events');
+            const totalFavoritesEl = document.getElementById('total-favorites');
+            const totalVisitedEl = document.getElementById('total-visited');
+            const totalRemindersEl = document.getElementById('total-reminders');
+            
+            if (totalEventsEl) totalEventsEl.textContent = events.length;
+            if (totalFavoritesEl) totalFavoritesEl.textContent = favorites.length;
+            if (totalVisitedEl) totalVisitedEl.textContent = visited.length;
+            if (totalRemindersEl) totalRemindersEl.textContent = reminders.length;
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleDarkMode() {
+            settings.darkMode = !settings.darkMode;
+            applySettings();
+            saveSettings();
+        }
+
+        function toggleHidePast() {
+            settings.hidePast = !settings.hidePast;
+            applySettings();
+            saveSettings();
+            renderEvents();
+        }
+
+        function applySettings() {
+            // Apply dark mode
+            document.body.classList.toggle('dark-mode', settings.darkMode);
+            
+            // Update toggle states
+            const darkModeToggle = document.getElementById('dark-mode-setting');
+            const hidePastToggle = document.getElementById('hide-past-setting');
+            
+            if (darkModeToggle) {
+                darkModeToggle.classList.toggle('active', settings.darkMode);
+            }
+            
+            if (hidePastToggle) {
+                hidePastToggle.classList.toggle('active', settings.hidePast);
+            }
+        }
+
+        function saveSettings() {
+            localStorage.setItem('omamsee_settings', JSON.stringify(settings));
+        }
+
+        // Make functions globally available for onclick handlers
+        window.toggleFavorite = toggleFavorite;
+        window.toggleReminder = toggleReminder;
+        window.toggleDarkMode = toggleDarkMode;
+        window.toggleHidePast = toggleHidePast;
+    </script>
 </body>
 </html>
