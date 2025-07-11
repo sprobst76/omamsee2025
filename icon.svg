@@ -1,0 +1,37 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#ff6b6b"/>
+  
+  <!-- OM Symbol -->
+  <g transform="translate(256, 256) scale(8)">
+    <!-- Main OM curve -->
+    <path d="M-20,-10 C-15,-25 -5,-25 0,-20 C5,-15 15,-15 20,-10 C15,0 5,5 0,10 C-5,15 -15,10 -20,0 Z" 
+          fill="white" opacity="0.9"/>
+    
+    <!-- Top curve -->
+    <path d="M-10,-25 C-5,-30 5,-30 10,-25 C8,-20 2,-20 0,-22 C-2,-20 -8,-20 -10,-25 Z" 
+          fill="white" opacity="0.9"/>
+    
+    <!-- Dot -->
+    <circle cx="12" cy="-20" r="3" fill="white" opacity="0.9"/>
+    
+    <!-- Bottom curve -->
+    <path d="M-15,10 C-10,20 -5,22 0,20 C5,22 10,20 15,10 C10,15 0,18 -15,10 Z" 
+          fill="white" opacity="0.9"/>
+  </g>
+  
+  <!-- Water waves at bottom -->
+  <g transform="translate(0, 400)">
+    <path d="M0,20 Q128,5 256,20 T512,20 L512,112 L0,112 Z" fill="rgba(255,255,255,0.2)"/>
+    <path d="M0,35 Q128,20 256,35 T512,35 L512,112 L0,112 Z" fill="rgba(255,255,255,0.1)"/>
+  </g>
+  
+  <!-- Subtle gradient overlay -->
+  <defs>
+    <radialGradient id="grad" cx="50%" cy="30%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  <circle cx="256" cy="256" r="240" fill="url(#grad)"/>
+</svg>
