@@ -702,4 +702,338 @@
             // Tab navigation
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const tab =
+                    const tab = this.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // Day selection
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentDay = this.dataset.day;
+                    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderEvents();
+                });
+            });
+
+            // Weather toggle
+            document.getElementById('weather-toggle').addEventListener('click', function() {
+                showRainPlan = !showRainPlan;
+                this.textContent = showRainPlan ? '☀️ Normalplan anzeigen' : '☔ Regenplan anzeigen';
+                this.classList.toggle('rain', showRainPlan);
+                renderEvents();
+            });
+
+            // Hide past toggle - FIXED
+            document.getElementById('hide-past-toggle').addEventListener('click', function() {
+                settings.hidePast = !settings.hidePast;
+                this.textContent = settings.hidePast ? '⏰ Vergangene anzeigen' : '⏰ Vergangene ausblenden';
+                this.classList.toggle('rain', settings.hidePast);
+                
+                // Update the toggle in settings
+                const settingToggle = document.getElementById('hide-past-setting');
+                if (settingToggle) {
+                    settingToggle.classList.toggle('active', settings.hidePast);
+                }
+                
+                saveSettings();
+                renderEvents();
+            });
+
+            // Dark mode toggle
+            document.getElementById('dark-mode-toggle').addEventListener('click', function() {
+                toggleDarkMode();
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', function() {
+                searchTerm = this.value.toLowerCase();
+                renderEvents();
+            });
+
+            // Filter tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    activeFilter = this.dataset.filter;
+                    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderEvents();
+                });
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const tabElement = document.getElementById(tab + '-tab');
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+
+            // Render content based on tab
+            switch(tab) {
+                case 'favorites':
+                    renderFavorites();
+                    break;
+                case 'visited':
+                    renderVisited();
+                    break;
+                case 'info':
+                    updateStats();
+                    break;
+            }
+        }
+
+        function renderEvents() {
+            const container = document.getElementById('events-container');
+            const eventsToShow = showRainPlan ? rainEvents : events;
+            
+            let filteredEvents = eventsToShow.filter(event => {
+                // Filter by day
+                if (event.date !== currentDay) return false;
+                
+                // Filter by search term
+                if (searchTerm && !event.title.toLowerCase().includes(searchTerm) && 
+                    !event.location.toLowerCase().includes(searchTerm)) return false;
+                
+                // Filter by category
+                if (activeFilter !== 'all' && event.category !== activeFilter) return false;
+                
+                return true;
+            });
+
+            // FIXED: Hide past events logic
+            if (settings.hidePast) {
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+                const currentTime = now.toTimeString().split(' ')[0].substring(0, 5);
+                
+                filteredEvents = filteredEvents.filter(event => {
+                    // Show future dates
+                    if (event.date > today) return true;
+                    
+                    // For today, show events that haven't ended yet
+                    if (event.date === today) {
+                        return event.endTime > currentTime;
+                    }
+                    
+                    // Hide past dates
+                    return false;
+                });
+            }
+
+            // Sort by start time
+            filteredEvents.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+            container.innerHTML = filteredEvents.length > 0 
+                ? filteredEvents.map(event => createEventCard(event)).join('')
+                : '<p style="text-align: center; color: #6c757d; margin-top: 40px;">Keine Events gefunden</p>';
+        }
+
+        function createEventCard(event) {
+            const isFavorite = favorites.includes(event.id);
+            const hasReminder = reminders.includes(event.id);
+            
+            return `
+                <div class="event-card">
+                    <div class="event-header">
+                        <div class="event-time">${event.startTime} - ${event.endTime}</div>
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-location">${event.location}</div>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn btn-favorite ${isFavorite ? 'active' : ''}" 
+                                onclick="toggleFavorite(${event.id})">
+                            ⭐ ${isFavorite ? 'Favorit' : 'Favorisieren'}
+                        </button>
+                        <button class="btn btn-remind ${hasReminder ? 'active' : ''}" 
+                                onclick="toggleReminder(${event.id})">
+                            🔔 ${hasReminder ? 'Aktiv' : 'Erinnern'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleFavorite(eventId) {
+            if (favorites.includes(eventId)) {
+                favorites = favorites.filter(id => id !== eventId);
+                showNotification('Aus Favoriten entfernt');
+            } else {
+                favorites.push(eventId);
+                showNotification('Zu Favoriten hinzugefügt');
+            }
+            
+            localStorage.setItem('omamsee_favorites', JSON.stringify(favorites));
+            renderCurrentView();
+            updateStats();
+        }
+
+        function toggleReminder(eventId) {
+            if (reminders.includes(eventId)) {
+                reminders = reminders.filter(id => id !== eventId);
+                showNotification('Erinnerung entfernt');
+            } else {
+                reminders.push(eventId);
+                showNotification('Erinnerung gesetzt');
+            }
+            
+            localStorage.setItem('omamsee_reminders', JSON.stringify(reminders));
+            renderCurrentView();
+            updateStats();
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favorites-container');
+            const favoriteEvents = [...events, ...rainEvents].filter(event => favorites.includes(event.id));
+
+            if (favoriteEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="favorites-empty">
+                        <p>💜 Noch keine Favoriten hinzugefügt</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Markiere Events mit ⭐ um sie hier zu sehen</p>
+                    </div>
+                `;
+                return;
+            }
+
+            favoriteEvents.sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            container.innerHTML = favoriteEvents.map(event => createEventCard(event)).join('');
+        }
+
+        function renderVisited() {
+            const container = document.getElementById('visited-container');
+            const visitedEvents = [...events, ...rainEvents].filter(event => visited.includes(event.id));
+
+            if (visitedEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="favorites-empty">
+                        <p>📝 Noch keine Events besucht</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Markiere Events als "besucht" um sie hier zu sehen</p>
+                    </div>
+                `;
+                return;
+            }
+
+            visitedEvents.sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            container.innerHTML = visitedEvents.map(event => createEventCard(event)).join('');
+        }
+
+        function renderCurrentView() {
+            switch(currentTab) {
+                case 'schedule':
+                    renderEvents();
+                    break;
+                case 'favorites':
+                    renderFavorites();
+                    break;
+                case 'visited':
+                    renderVisited();
+                    break;
+            }
+        }
+
+        function updateStats() {
+            const totalEventsEl = document.getElementById('total-events');
+            const totalFavoritesEl = document.getElementById('total-favorites');
+            const totalVisitedEl = document.getElementById('total-visited');
+            const totalRemindersEl = document.getElementById('total-reminders');
+            
+            if (totalEventsEl) totalEventsEl.textContent = events.length;
+            if (totalFavoritesEl) totalFavoritesEl.textContent = favorites.length;
+            if (totalVisitedEl) totalVisitedEl.textContent = visited.length;
+            if (totalRemindersEl) totalRemindersEl.textContent = reminders.length;
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleDarkMode() {
+            settings.darkMode = !settings.darkMode;
+            applySettings();
+            saveSettings();
+        }
+
+        function toggleHidePast() {
+            settings.hidePast = !settings.hidePast;
+            
+            // Update button text
+            const hidePastBtn = document.getElementById('hide-past-toggle');
+            if (hidePastBtn) {
+                hidePastBtn.textContent = settings.hidePast ? '⏰ Vergangene anzeigen' : '⏰ Vergangene ausblenden';
+                hidePastBtn.classList.toggle('rain', settings.hidePast);
+            }
+            
+            applySettings();
+            saveSettings();
+            renderEvents();
+        }
+
+        function applySettings() {
+            // Apply dark mode
+            document.body.classList.toggle('dark-mode', settings.darkMode);
+            
+            // Update toggle states
+            const darkModeToggle = document.getElementById('dark-mode-setting');
+            const hidePastToggle = document.getElementById('hide-past-setting');
+            
+            if (darkModeToggle) {
+                darkModeToggle.classList.toggle('active', settings.darkMode);
+            }
+            
+            if (hidePastToggle) {
+                hidePastToggle.classList.toggle('active', settings.hidePast);
+            }
+
+            // Update button texts to match current state
+            const darkModeBtn = document.getElementById('dark-mode-toggle');
+            const hidePastBtn = document.getElementById('hide-past-toggle');
+            
+            if (darkModeBtn) {
+                darkModeBtn.textContent = settings.darkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+            }
+            
+            if (hidePastBtn) {
+                hidePastBtn.textContent = settings.hidePast ? '⏰ Vergangene anzeigen' : '⏰ Vergangene ausblenden';
+                hidePastBtn.classList.toggle('rain', settings.hidePast);
+            }
+        }
+
+        function saveSettings() {
+            localStorage.setItem('omamsee_settings', JSON.stringify(settings));
+        }
+
+        // Make functions globally available for onclick handlers
+        window.toggleFavorite = toggleFavorite;
+        window.toggleReminder = toggleReminder;
+        window.toggleDarkMode = toggleDarkMode;
+        window.toggleHidePast = toggleHidePast;
+    </script>
+</body>
+</html>
