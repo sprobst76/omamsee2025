@@ -1,0 +1,52 @@
+{
+  "name": "omamsee-festival-app",
+  "version": "1.0.0",
+  "description": "Progressive Web App für das OM am See Festival 2025",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "netlify deploy --prod --dir .",
+    "test": "echo 'No tests specified'",
+    "lighthouse": "lighthouse http://localhost:8000 --output=html --output-path=./lighthouse-report.html",
+    "validate": "html-validate *.html",
+    "serve": "npx serve . -p 8000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/omamsee-festival-app.git"
+  },
+  "keywords": [
+    "pwa",
+    "festival",
+    "yoga",
+    "meditation",
+    "mobile-app",
+    "progressive-web-app",
+    "offline-first",
+    "javascript",
+    "css3",
+    "html5"
+  ],
+  "author": "OM am See Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/omamsee-festival-app/issues"
+  },
+  "homepage": "https://omamsee-festival.netlify.app",
+  "devDependencies": {
+    "lighthouse": "^10.0.0",
+    "html-validate": "^8.0.0",
+    "serve": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
